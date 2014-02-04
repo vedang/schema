@@ -8,11 +8,13 @@
 
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.5.1"]
                                   [org.clojure/clojurescript "0.0-2030"]
-                                  [prismatic/cljs-test "0.0.6"]
+                                  [com.cemerick/clojurescript.test "0.2.1"]
                                   [com.keminglabs/cljx "0.3.1"]]
-                   :plugins [[com.cemerick/austin "0.1.3"]
-                             [lein-cljsbuild "1.0.0-alpha2"]
-                             [com.keminglabs/cljx "0.3.1"]]
+                   :plugins [[com.keminglabs/cljx "0.3.1"]
+                             [lein-cljsbuild "0.3.2"]
+                             [com.cemerick/austin "0.1.3"]
+                             [com.cemerick/clojurescript.test "0.2.1"]]
+                   :hooks [leiningen.cljsbuild]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl
                                                      cljx.repl-middleware/wrap-cljx]}
                    :cljx {:builds [{:source-paths ["src/cljx"]
@@ -41,7 +43,10 @@
 
   :test-paths ["target/generated/test/clj" "test/clj"]
 
-  :cljsbuild {:builds
+  :cljsbuild {:test-commands {"unit" ["phantomjs" :runner
+                                      "window.literal_js_was_evaluated=true"
+                                      "target/unit-test.js"]}
+              :builds
               {:dev {:source-paths ["src/clj" "target/generated/src/cljs"]
                      :compiler {:output-to "target/main.js"
                                 :optimizations :whitespace

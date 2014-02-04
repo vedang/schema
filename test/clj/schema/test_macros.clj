@@ -20,14 +20,3 @@
   "Assert that f throws (presumably due to schema validation error) when called on args."
   [f & args]
   `(~'is (~'thrown? Throwable (~f ~@args))))
-
-;;; cljs only
-
-(defmacro thrown?
-  ([_ form]
-     `(try
-        ~form false
-        (catch js/Error e# true))))
-
-(defmacro testing [label & form]
-  `(do ~@form))

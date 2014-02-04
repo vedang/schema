@@ -8,8 +8,8 @@
     - (invalid-call! s x) asserts that calling the function throws an error."
   #+clj (:use clojure.test [schema.test-macros :only [valid! invalid! invalid-call!]])
   #+cljs (:use-macros
-          [cljs-test.macros :only [is is= deftest]]
-          [schema.test-macros :only [testing valid! invalid! invalid-call! thrown?]])
+          [cemerick.cljs.test :only [is is= deftest testing]]
+          [schema.test-macros :only [valid! invalid! invalid-call!]])
   #+cljs (:require-macros
           [schema.macros :as sm])
   (:require
@@ -18,7 +18,7 @@
    [schema.core :as s]
    #+clj potemkin
    #+clj [schema.macros :as sm]
-   #+cljs cljs-test.core))
+   #+cljs cemerick.cljs.test))
 
 (deftest compiling-cljs?-test
   (is (= #+cljs true #+clj false (sm/compiling-cljs-now?))))
@@ -835,11 +835,11 @@
     (testing "pre/post"
       (is (= 7 (validated-pre-post-defn 7)))
       (is (thrown-with-msg? AssertionError #"Assert failed: \(odd\? arg0\)"
-            (validated-pre-post-defn 0)))
+                            (validated-pre-post-defn 0)))
       (is (thrown-with-msg? AssertionError #"Assert failed: \(> 10 arg0\)"
-            (validated-pre-post-defn 11)))
+                            (validated-pre-post-defn 11)))
       (is (thrown-with-msg? AssertionError #"Assert failed: \(< 5 %\)"
-            (validated-pre-post-defn 1)))
+                            (validated-pre-post-defn 1)))
       (invalid-call! validated-pre-post-defn "a")))
   (doseq [[label v] {"old" #'simple-validated-defn "new" #'simple-validated-defn-new}]
     (testing label
