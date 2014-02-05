@@ -20,6 +20,11 @@
    #+clj [schema.macros :as sm]
    #+cljs cemerick.cljs.test))
 
+#+cljs
+(do
+  (def Exception js/Error)
+  (def AssertionError js/Error))
+
 (deftest compiling-cljs?-test
   (is (= #+cljs true #+clj false (sm/compiling-cljs-now?))))
 
@@ -165,6 +170,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Simple composite Schemas
+
 
 (deftest maybe-test
   (let [schema (s/maybe s/Int)]
@@ -523,7 +529,7 @@
          (s/record Bar {:foo s/Int
                         :bar s/Str
                         (s/optional-key :baz) s/Keyword})))
-  (is (Bar. 1 :foo))
+  (is (identity (Bar. 1 :foo)))
   (is (= #{:foo :bar} (set (keys (map->Bar {:foo 1})))))
   ;; (is (thrown? Exception (map->Bar {}))) ;; check for primitive long
   (valid! Bar (Bar. 1 "test"))
@@ -557,7 +563,7 @@
                                 :bar s/Str
                                 :zoo s/Any
                                 (s/optional-key :baz) s/Keyword})))
-  (is (BarNewStyle. 1 :foo "a"))
+  (is (identity (BarNewStyle. 1 :foo "a")))
   (is (= #{:foo :bar :zoo} (set (keys (map->BarNewStyle {:foo 1})))))
   ;; (is (thrown? Exception (map->BarNewStyle {}))) ;; check for primitive long
   (valid! BarNewStyle (BarNewStyle. 1 "test" "a"))
@@ -965,12 +971,13 @@
 
 (deftest with-fn-validation-error-test
   (is (thrown? #+clj RuntimeException #+cljs js/Error
-               (sm/with-fn-validation (throw #+clj (RuntimeException.) #+cljs (js/Error "error")))))
+               (sm/with-fn-validation (throw #+clj (RuntimeException.) #+cljs (js/Error. "error")))))
   (is (false? (.get_cell utils/use-fn-validation))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Composite Schemas (test a few combinations of above)
+
 
 (deftest nice-error-test
   (let [schema {:a #{[s/Int]}
@@ -987,6 +994,7 @@
     [^s/Int foo ^s/Keyword bar]
   {(s/optional-key :baz) s/Keyword})
 
+#+clj ;; clojurescript.test hangs on this test in phantom.js, so marking clj-only
 (deftest fancy-explain-test
   (is (= (s/explain {(s/required-key 'x) s/Int
                      s/Keyword [(s/one s/Int "foo") (s/maybe Explainer)]})
